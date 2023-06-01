@@ -12,7 +12,7 @@ class Correlation:
 
     def add_values(self, x,y):
         self.n += 1
-        self.sum_xy += x + y
+        self.sum_xy += x * y
         self.sum_x += x
         self.sum_y += y
         self.sum_xsq += x**2
@@ -40,8 +40,8 @@ if __name__ == "__main__":
         b_nan = 0
         both_nan = 0
 
-        for x in range(imageA.tif_shape[0])[1000:1500]:
-            for y in range(imageA.tif_shape[1])[1000:1500]:
+        for x in range(imageA.tif_shape[0]):
+            for y in range(imageA.tif_shape[1]):
                 a_valid = not math.isnan(dataA[x,y])
                 b_valid = not math.isnan(dataB[x,y])
                 if a_valid and b_valid:
