@@ -3,11 +3,11 @@ simply python script to calculate the pearson correlation coefficient between tw
 ## dependencies
 the required packages can be installed with ```pip install -r requirements.txt --user```
 ## usage
-```python main.py layerA.tif layerB.tif```
+get perason correlation between two images
+```python main.py corr layerA.tif layerB.tif```
+plot values
+```python main.py plot layerA.tif layerB.tif```
 ## sample output
 ```
-both_nan 14968278 # pixels where both layers are nan ("not a number")
-a_nan 1653 # pixels where only layerA is nan
-b_nan 16794688 # pixels where only layerB is nan
 corr -0.012670411044346559 # pearson correlation coefficent
 ```

@@ -1,5 +1,46 @@
 import sys, math
 import geotiff
+import matplotlib.pyplot as plt
+
+class ImageHandler:
+    def __init__(self, pathA, pathB):
+        self.imageA = geotiff.GeoTiff(pathA)
+        self.imageB = geotiff.GeoTiff(pathB)
+
+        if not self.imageA.tif_shape == self.imageB.tif_shape:
+            raise ValueError("please provide images with similar resolution")
+
+        self.dataA = self.imageA.read()
+        self.dataB = self.imageB.read()
+
+    def map(self, func):
+        self.a_nan = 0
+        self.b_nan = 0
+        self.both_nan = 0
+
+        for x in range(self.imageA.tif_shape[0]):
+            for y in range(self.imageA.tif_shape[1]):
+                a_valid = not math.isnan(self.dataA[x,y])
+                b_valid = not math.isnan(self.dataB[x,y])
+                if a_valid and b_valid:
+                    func(self.dataA[x,y], self.dataB[x,y])
+                elif (not a_valid) and (not b_valid):
+                    self.both_nan += 1
+                elif not a_valid:
+                    self.a_nan += 1
+                elif not b_valid:
+                    self.b_nan += 1
+
+    def load_values(self):
+        self.valuesA = []
+        self.valuesB = []
+
+        def save(x,y):
+            self.valuesA.append(x)
+            self.valuesB.append(y)
+
+        self.map(save)
+
 
 class Correlation:
     def __init__(self):
@@ -24,41 +65,21 @@ class Correlation:
         return (self.n * self.sum_xy - self.sum_x * self.sum_y) / math.sqrt(sd_x * sd_y)
 
 if __name__ == "__main__":
-    if len(sys.argv) == 3:
-        imageA = geotiff.GeoTiff(sys.argv[1])
-        imageB = geotiff.GeoTiff(sys.argv[2])
+    if len(sys.argv) == 4:
+        handler = ImageHandler(sys.argv[2], sys.argv[3])
+        if sys.argv[1] == "corr":
+            c = Correlation()
+            handler.map(c.add_values)
+            print("corr:", c.calculate())
 
-        if not imageA.tif_shape == imageB.tif_shape:
-            raise ValueError("please provide images with similar resolution")
-
-        dataA = imageA.read()
-        dataB = imageB.read()
-
-        c = Correlation()
-
-        a_nan = 0
-        b_nan = 0
-        both_nan = 0
-
-        for x in range(imageA.tif_shape[0]):
-            for y in range(imageA.tif_shape[1]):
-                a_valid = not math.isnan(dataA[x,y])
-                b_valid = not math.isnan(dataB[x,y])
-                if a_valid and b_valid:
-                    c.add_values(dataA[x,y], dataB[x,y])
-                elif (not a_valid) and (not b_valid):
-                    both_nan += 1
-                elif not a_valid:
-                    a_nan += 1
-                elif not b_valid:
-                    b_nan += 1
-
-        print("both_nan", both_nan)
-        print("a_nan", a_nan)
-        print("b_nan", b_nan)
-        print("corr", c.calculate())
+        elif sys.argv[1] == "plot":
+            handler.load_values()
+            plt.scatter(handler.valuesA, handler.valuesB, s=0.3)
+            plt.show()
+        else:
+            raise ValueError("command must be corr or plot")
 
     else:
-        raise TypeError("please provide two images")
+        raise ValueError("please provide a command (corr or plot) and two images\nfor example: python main.py corr a.tiff b.tiff")
     
     
