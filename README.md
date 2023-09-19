@@ -1,5 +1,5 @@
 # geotiff_correlation
-simply python script to calculate the pearson correlation coefficient between two geotiff files
+simple python script to calculate the pearson correlation coefficient between two geotiff files
 ## dependencies
 the required packages can be installed with ```pip install -r requirements.txt --user```
 ## usage
